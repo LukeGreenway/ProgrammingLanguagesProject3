@@ -1,6 +1,8 @@
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
 
+import scala.jdk.CollectionConverters.IterableHasAsScala
+
 object Page{
   // the "true" argument is to append to the file
   private val logWriter = new java.io.PrintWriter(new java.io.BufferedWriter(new java.io.FileWriter("page_fetch_errors.log", true)))
