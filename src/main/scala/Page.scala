@@ -56,14 +56,24 @@ object Page{
     
 class Page(val url: String, val doc: Document, val links: Set[String], val text: String){
 
-  // TODO: write other methods and fields to
-  //   support your indexing/scoring algorithms
-  // You can modify the constructor arguments as well, if you need
-  //   additional information (or do not need some of the provided information)
-  // See https://jsoup.org/cookbook/ for more information on JSoup,
-  //   if you want to do your own DOM traversal. Note that those Java collections
-  //   can be converted to Scala collections using the .asScala method,
-  //   like in Page.getLinks
+  def getListOfWords: List[String] ={
+    val allWords = text.toLowerCase.split(' ').toList
+    val blackList = List("\"", "[", "]", "'", ",", ".", "!", "?")
+    allWords.map(word=> blackList.foldLeft(word)(_.replace(_,"")))
+  }
+  def getUrl: String = url
+  def getDoc: Document = doc
+  def getLinks: Set[String] = links
+
+
+
+}
+
+object main{
+  def main(args: Array[String]): Unit = {
+    val p = new Page("www.google.com", null, Set("www.bing.com"), "This is google.com. Greetings kind fellow.")
+    print(p.getListOfWords)
 
   }
+}
 

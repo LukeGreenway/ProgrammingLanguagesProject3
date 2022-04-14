@@ -1,14 +1,15 @@
+import scala.collection.convert.ImplicitConversions.`collection asJava`
 
 object MainNoActors {
   def main(args: Array[String]) = {
     val index = new IndexedPages()
     addTop50Pages(index)
-    
+
     val queries = Vector( Vector("news"),
                           Vector("apple"),
                           Vector("sports", "ncaa"),
                           Vector("watch", "movies") ).map{ new Query(_) }
-                          
+
     for(q <- queries) {
       val results = index.search(q)
       println(q)
@@ -16,13 +17,13 @@ object MainNoActors {
       println("")
     }
   }
-  
+
   def addTop50Pages(index: IndexedPages) = {
-  
+
     // from http://www.alexa.com/topsites/countries/US
     val top50UrlsUsa = Vector(
     "google.com",
-    "youtube.com", 
+    "youtube.com",
     "facebook.com",
     "amazon.com",
     "yahoo.com",
@@ -69,12 +70,12 @@ object MainNoActors {
     "instructure.com",
     "foxnews.com",
     "twitch.tv").map( (base: String) => "http://" + base )
-    
+
     val pagesToAdd = top50UrlsUsa.flatMap{ (u: String) => Page.fetchPage(u) }
-        
-    // uncomment to see the content of the pages  
+
+    // uncomment to see the content of the pages
     //for(p <- pagesToAdd) {println(p.url); println(p.text); println("\n\n")}
-    
+
     for(p <- pagesToAdd) index.add(p)
   }
 }

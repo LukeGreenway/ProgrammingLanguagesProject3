@@ -4,8 +4,12 @@ trait Weighted[A] {
   def getWeights: Seq[Double]
   
   def sumIf(f: A => Boolean): Double = {
-    // TODO: complete this method
-    0.0
+    var sum = 0.0
+    for((item,weight)<-(getItems zip getWeights) if(f(item))) {
+      sum += weight
+    }
+
+    sum
   }
   
 }
