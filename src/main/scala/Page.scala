@@ -56,7 +56,7 @@ object Page{
     
 class Page(val url: String, val doc: Document, val links: Set[String], val text: String){
 
-  def getListOfWords: List[String] ={
+  def getWords: List[String] ={
     val allWords = text.toLowerCase.split(' ').toList
     val blackList = List("\"", "[", "]", "'", ",", ".", "!", "?")
     allWords.map(word=> blackList.foldLeft(word)(_.replace(_,"")))
@@ -65,14 +65,18 @@ class Page(val url: String, val doc: Document, val links: Set[String], val text:
   def getDoc: Document = doc
   def getLinks: Set[String] = links
 
-
+  def countOfWord(word:String): Int = {
+    var sum = 0
+    for(w<-getWords if(w==word)) sum+=1
+    sum
+  }
 
 }
 
 object main{
   def main(args: Array[String]): Unit = {
     val p = new Page("www.google.com", null, Set("www.bing.com"), "This is google.com. Greetings kind fellow.")
-    print(p.getListOfWords)
+    print(p.getWords)
 
   }
 }

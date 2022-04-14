@@ -1,7 +1,7 @@
 
 class IndexedPages extends Seq[Page] with Weighted[Page] {
 
-  var pages:List[Page]
+  var pages:Seq[Page] = Seq()
 
   override def apply(i: Int): Page = pages(i)
 
@@ -13,7 +13,13 @@ class IndexedPages extends Seq[Page] with Weighted[Page] {
 
   override def getWeights: Seq[Double] = for(p<-pages) yield 1.0
 
-  def search(q: Query) : SearchResults = ???
+  def search(q: Query) : SearchResults = {
 
-  def add(p: Page): List[Page] =
+  }
+
+  def add(page: Page): Seq[Page] = {
+    for(p<-pages){ if(p.getUrl == page.getUrl) pages}
+    pages = pages :+ page
+    pages
+  }
 }
