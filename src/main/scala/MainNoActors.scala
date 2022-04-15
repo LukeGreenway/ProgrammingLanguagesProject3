@@ -2,21 +2,44 @@ import scala.collection.convert.ImplicitConversions.`collection asJava`
 
 object MainNoActors {
   def main(args: Array[String]) = {
-    val index = new IndexedPages()
+    val index = new WeightedIndexedPages()
     addTop50Pages(index)
+    //webCrawl(index, 2)
+
 
     val queries = Vector( Vector("news"),
                           Vector("apple"),
                           Vector("sports", "ncaa"),
-                          Vector("watch", "movies") ).map{ new Query(_) }
+                          Vector("watch", "movies") ).map{ new WeightedQuery(_) }
+
+
 
     for(q <- queries) {
       val results = index.search(q)
+      println(q.getItems)
       println(q)
       results.top(8).foreach{ case (url, score) => printf("%10.4f   %s\n", score, url) }
       println("")
     }
   }
+
+//  def webCrawl(index: IndexedPages, loops: Int = 2): Unit = {
+//
+//    var x = 0
+//    for(x <- 0 to loops){
+//      var pagesToAdd: Seq[Page] = Seq()
+//      for(p<-index){
+//        for(l<- p.getLinks) {
+//          val linkedPage = Page.fetchPage(l)
+//          if(linkedPage.isDefined) pagesToAdd.add(linkedPage.get)
+//        }
+//      }
+//          // uncomment to see the content of the pages
+//      println("Web crawl, loop " +x)
+//          for(p <- pagesToAdd) {println(p.url); println(p.text); println("\n\n")}
+//      for(p <- pagesToAdd) index.add(p)
+//    }
+//  }
 
   def addTop50Pages(index: IndexedPages) = {
 
@@ -73,8 +96,8 @@ object MainNoActors {
 
     val pagesToAdd = top50UrlsUsa.flatMap{ (u: String) => Page.fetchPage(u) }
 
-    // uncomment to see the content of the pages
-    //for(p <- pagesToAdd) {println(p.url); println(p.text); println("\n\n")}
+//    // uncomment to see the content of the pages
+//    for(p <- pagesToAdd) {println(p.url); println(p.getWords); println("\n\n")}
 
     for(p <- pagesToAdd) index.add(p)
   }

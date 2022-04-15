@@ -61,14 +61,24 @@ class Page(val url: String, val doc: Document, val links: Set[String], val text:
     val blackList = List("\"", "[", "]", "'", ",", ".", "!", "?")
     allWords.map(word=> blackList.foldLeft(word)(_.replace(_,"")))
   }
+
   def getUrl: String = url
   def getDoc: Document = doc
   def getLinks: Set[String] = links
 
   def countOfWord(word:String): Int = {
-    var sum = 0
-    for(w<-getWords if(w==word)) sum+=1
-    sum
+    getWords.count(_ == word)
+  }
+
+  def getTermFrequency(word:String): Double = {
+    val count = countOfWord(word)
+    //println("Count of "+ word + " is "+ count + ". getWords.length = " +getWords.length*1.0)
+    if (count != 0) countOfWord(word)/ (getWords.length*1.0)
+    else 0
+  }
+
+  def getNumDistinctWords: Int = {
+    getWords.distinct.length
   }
 
 }
