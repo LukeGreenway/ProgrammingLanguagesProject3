@@ -1,6 +1,6 @@
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
-
+import scala.collection.parallel.CollectionConverters._
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
 object Page{
@@ -57,9 +57,7 @@ object Page{
 class Page(val url: String, val doc: Document, val links: Set[String], val text: String){
 
   def getWords: List[String] ={
-    val allWords = text.toLowerCase.split(' ').toList
-    val blackList = List("\"", "[", "]", "'", ",", ".", "!", "?")
-    allWords.map(word=> blackList.foldLeft(word)(_.replace(_,"")))
+    text.toLowerCase().split("\\W").toList
   }
 
   def getUrl: String = url
@@ -81,12 +79,11 @@ class Page(val url: String, val doc: Document, val links: Set[String], val text:
     getWords.distinct.length
   }
 
-}
-
-object main{
-  def main(args: Array[String]): Unit = {
-    val p = new Page("www.google.com", null, Set("www.bing.com"), "This is google.com. Greetings kind fellow.")
-    print(p.getWords)
+  override def equals(obj: Any): Boolean = {
+    obj match{
+      case that: Page => that.url == this.url
+      case _ => false
+    }
 
   }
 }

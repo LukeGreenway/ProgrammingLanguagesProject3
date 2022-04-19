@@ -5,9 +5,10 @@ class Query(seq: Seq[String]) extends Weighted[String] {
 }
 
 class WeightedQuery(seq:Seq[String]) extends Query(seq){
+
   override def getWeights: Seq[Double] = {
     val longest:Double = seq.maxBy(_.length).length
-    for(item<-seq) yield item.length/longest
+    val termCount = getItems.groupBy(identity).view.mapValues(_.size)
+    (for(item<-seq) yield (item.length/longest) / (1.0* termCount(item)))
   }
-
 }

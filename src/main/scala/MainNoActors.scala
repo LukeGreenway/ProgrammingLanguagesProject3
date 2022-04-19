@@ -1,45 +1,66 @@
 import scala.collection.convert.ImplicitConversions.`collection asJava`
+import scala.collection.parallel.CollectionConverters._
 
 object MainNoActors {
   def main(args: Array[String]) = {
-    val index = new WeightedIndexedPages()
+
+    val start = System.nanoTime()
+//    val index = new WeightedIndexedPages()
+    val index = new IndexedPages() //for non-weighted
     addTop50Pages(index)
-    //webCrawl(index, 2)
+    //webCrawl(index)
+    val end = System.nanoTime()
+    printf("Indexing for non parallel took: %f seconds\n",(end-start).toDouble /1e9d)
+    printf("There are %d pages indexed\n", index.size)
 
 
-    val queries = Vector( Vector("news"),
-                          Vector("apple"),
-                          Vector("sports", "ncaa"),
-                          Vector("watch", "movies") ).map{ new WeightedQuery(_) }
+    val queries = Vector( Vector("apple", "phone"),
+                          Vector("why", "turtles", "are", "cute"),
+                          Vector("cat", "cat", "cat", "cat", "cat", "pittsburgh"),
+                          Vector("Pittsburgh", "movies") )
+
+    val weightedQueries = queries.map{ new WeightedQuery(_) }
+    val unweightedQueries = queries.map{new Query(_)}
 
 
-
-    for(q <- queries) {
-      val results = index.search(q)
+    for((q,wq) <- (unweightedQueries zip weightedQueries)) {
       println(q.getItems)
+      println("Unweighted")
+      val results = index.search(q)
       println(q)
       results.top(8).foreach{ case (url, score) => printf("%10.4f   %s\n", score, url) }
+      println("")
+      println("Weighted")
+      val weightedResults = index.search(wq)
+      println(wq)
+      weightedResults.top(8).foreach{ case (url, score) => printf("%10.4f   %s\n", score, url) }
       println("")
     }
   }
 
-//  def webCrawl(index: IndexedPages, loops: Int = 2): Unit = {
-//
-//    var x = 0
-//    for(x <- 0 to loops){
-//      var pagesToAdd: Seq[Page] = Seq()
-//      for(p<-index){
-//        for(l<- p.getLinks) {
-//          val linkedPage = Page.fetchPage(l)
-//          if(linkedPage.isDefined) pagesToAdd.add(linkedPage.get)
-//        }
-//      }
-//          // uncomment to see the content of the pages
+
+  def webCrawl(index: IndexedPages, loops: Int = 2, limit:Int = 300, spread: Int = 5): Unit = {
+    var x = 0
+    for(x <- 0 until loops){
+      var pagesToAdd: Seq[Page] = Seq()
+      for(p<-index){
+        var links = p.getLinks
+        if(links.size > spread){
+          links = util.Random.shuffle(links).take(spread)
+        }
+        for(l<- links.par) {
+          if(index.size + pagesToAdd.size < limit) {
+            val linkedPage = Page.fetchPage(l)
+            if (linkedPage.isDefined) pagesToAdd = pagesToAdd :+ linkedPage.get
+          }
+        }
+      }
+          // uncomment to see the content of the pages
 //      println("Web crawl, loop " +x)
 //          for(p <- pagesToAdd) {println(p.url); println(p.text); println("\n\n")}
-//      for(p <- pagesToAdd) index.add(p)
-//    }
-//  }
+      for(p <- pagesToAdd) index.add(p)
+    }
+  }
 
   def addTop50Pages(index: IndexedPages) = {
 
@@ -94,7 +115,7 @@ object MainNoActors {
     "foxnews.com",
     "twitch.tv").map( (base: String) => "http://" + base )
 
-    val pagesToAdd = top50UrlsUsa.flatMap{ (u: String) => Page.fetchPage(u) }
+    val pagesToAdd = top50UrlsUsa.par.flatMap{ (u: String) => Page.fetchPage(u) }.seq
 
 //    // uncomment to see the content of the pages
 //    for(p <- pagesToAdd) {println(p.url); println(p.getWords); println("\n\n")}
